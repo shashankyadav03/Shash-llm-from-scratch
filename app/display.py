@@ -1,5 +1,4 @@
 import streamlit as st
-from core.verification import verify_response
 
 def display_chat_history():
     """
@@ -30,7 +29,4 @@ def display_chat_history():
                 """,
                 unsafe_allow_html=True
             )
-            if i == 0:
-                st.button("Verify the Response", on_click=verify_response, args=(message['content'],))
-
     

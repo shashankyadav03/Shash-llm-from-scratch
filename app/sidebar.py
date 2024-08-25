@@ -1,7 +1,4 @@
 import streamlit as st
-from core.pdf_processing import get_text_from_pdf, get_text_chunks
-from core.vector_store import get_vector_store
-from core.conversation_chain import get_conversation_chain
 
 def setup_sidebar(chat_placeholder):
     """
@@ -15,38 +12,23 @@ def setup_sidebar(chat_placeholder):
     """
     with st.sidebar:
         if st.button("Start New Chat"):
-            st.session_state.conversation_chain = None
             st.session_state.chat_history = []
+            st.session_state.chat_history.append({"role": "system", "content": "Hello! I am Shash LLM. How can I help you today 🤖?"})
             st.success("New chat started! Please upload a document to begin.")
             chat_placeholder.empty()
         
-        st.subheader("Your documents")
-        pdf_docs = st.file_uploader("Upload your financial documents", accept_multiple_files=True)
+        st.markdown("---")
+        # Display user queries from the chat history
+       
+        user_queries = [message['content'] for message in st.session_state.chat_history if message['role'] == 'user']
+        if user_queries and len(user_queries) > 0: 
+            st.write("User Queries:")
+            for query in user_queries:
+                st.write(f"- {query}")
+        else:
+            st.write("No user queries yet.")
 
-        if st.button("Process"):
-            if pdf_docs:
-                try:
-                    with st.spinner("Processing..."):
-                        raw_text = get_text_from_pdf(pdf_docs)
-                        text_chunks = get_text_chunks(raw_text)
-                        vector_store = get_vector_store(text_chunks)
-                        st.success("Processing complete!")
-                        st.session_state.conversation_chain = get_conversation_chain(vector_store)
-                        chat_placeholder.empty()
-                        st.write("🤖: Processing is complete! You can now start asking your questions.")
-                except Exception as e:
-                    st.error(f"An error occurred during processing: {e}")
-            else:
-                st.warning("Please upload at least one document before processing.")
-        st.write("🤖: OR")
-        if st.button("Process Sample Document"):
-            pdf_docs = ["data/FinSightAI_Report.pdf"]
-            sample_text = get_text_from_pdf(pdf_docs)
-            text_chunks = get_text_chunks(sample_text)
-            vector_store = get_vector_store(text_chunks)
-            st.session_state.conversation_chain = get_conversation_chain(vector_store)
-            st.success("Sample document processed successfully!")
-            chat_placeholder.empty()
-            st.write("🤖: Sample document processed successfully! You can now start asking your questions.")
+
+        
 
         
